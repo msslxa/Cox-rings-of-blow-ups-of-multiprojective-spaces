@@ -1,0 +1,1 @@
+# Cox-rings-of-blow-ups-of-multiprojective-spaces
