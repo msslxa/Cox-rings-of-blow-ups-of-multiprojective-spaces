@@ -260,7 +260,7 @@ end function;
 
 ----------------------------------------------------------------------------------
 
-// Input: an integer n >= 1;
+// Input: an integer n >= 2;
 // Output: the Mori chamber decomposition of P1xPn blown-up at n+1 general points in the basis H_1, H_2, E_1,...,E_{n+1}.
 
 MCD := function(n)
@@ -305,7 +305,7 @@ time mc3 := MCD(3);
 ------------------------------------------------------------------
 Finite field
 
-// Input: an integer n >= 1;
+// Input: an integer n >= 2;
 // Output: the Mori chamber decomposition of P1xPn blown-up at n+1 general points in the basis H_1, H_2, E_1,...,E_{n+1}.
 
 MCD := function(n)
