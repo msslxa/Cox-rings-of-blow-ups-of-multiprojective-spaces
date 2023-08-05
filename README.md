@@ -10,13 +10,16 @@ MCD takes in input an integer n and gives the Mori chamber decomposition of P^1 
 
 The Mori chamber decomposition of P^1 x P^2 blown-up in 3 general points is stored in the file mc2.ws and che be loaded with the commands 
 restore "mc2.ws";
+
 mc2;
 
 The Mori chamber decomposition of P^1 x P^3 blown-up in 4 general points is stored in the file mc3.ws and che be loaded with the commands 
 restore "mc3.ws";
+
 mc3;
 
 The Mori chamber decomposition of P^1 x P^4 blown-up in 5 general points is stored in the file mc4.ws and che be loaded with the commands 
 restore "mc4.ws";
+
 mc4;
 
