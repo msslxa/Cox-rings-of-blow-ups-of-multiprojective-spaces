@@ -1,7 +1,9 @@
 # Cox-rings-of-blow-ups-of-multiprojective-spaces
 
 Nef1 takes in input an integer n and gives the extremal rays of the Nef cone of P^1 x P^n blown-up in n+1 general points.
+
 Nef2 takes in input an integer n and gives the extremal rays of the Nef cone of P^1 x P^n blown-up in n+2 general points.
+
 Nef3 takes in input an integer n <= 4 and gives the extremal rays of the Nef cone of P^1 x P^n blown-up in n+3 general points.
 
 MCD takes in input an integer n and gives the Mori chamber decomposition of P^1 x P^n blown-up in n+1 general points.
