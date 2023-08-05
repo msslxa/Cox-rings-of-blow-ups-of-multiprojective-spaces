@@ -1,0 +1,347 @@
+// Nef cones of P1 x Pn blown-up at n+1, n+2 general points and at n+3 with n <= 4 general points
+
+// Input: an integer n >= 1;
+// Output: the Nef cone of P1xPn blown-up at n+1 general points in the basis H_1, H_2, -E_1,...,-E_{n+1}.
+
+Nef1 := function(n)
+h1 := [1,0];
+h2 := [0,1];
+e := [];
+for i in [1..n+1] do
+e[i] := [0 : j in [1..i+1]] cat [1] cat [0 : j in [i+3..n+3]];
+end for;
+nege := [];
+for i in [1..n+1] do
+nege[i] := [0 : j in [3..i+1]] cat [-1] cat [0 : j in [i+3..n+3]];
+end for;
+v := [];
+for i in [1..n+1] do
+v[i] := h1 cat nege[i];
+end for;
+w := [];
+for i in [1..n+1] do
+w[i] := h2 cat nege[i];
+end for;
+NE := Cone(v cat w cat e);
+Nef := Dual(NE);
+return Nef;
+end function;
+
+// Example 
+Nef1(2);
+Rays(Nef1(2));
+
+
+// Input: an integer n >= 1;
+// Output: the Nef cone of P1xPn blown-up at n+2 general points in the basis H_1, H_2, -E_1,...,-E_{n+2}.
+
+Nef2 := function(n)
+h1 := [1,0];
+h2 := [0,1];
+e := [];
+for i in [1..n+2] do
+e[i] := [0 : j in [1..i+1]] cat [1] cat [0 : j in [i+3..n+4]];
+end for;
+nege := [];
+for i in [1..n+2] do
+nege[i] := [0 : j in [3..i+1]] cat [-1] cat [0 : j in [i+3..n+4]];
+end for;
+v := [];
+for i in [1..n+2] do
+v[i] := h1 cat nege[i];
+end for;
+w := [];
+for i in [1..n+2] do
+w[i] := h2 cat nege[i];
+end for;
+c := [[1,n] cat [-1 : i in [1..n+2]]];
+NE := Cone(v cat w cat e cat c);
+Nef := Dual(NE);
+return Nef;
+end function;
+
+// Examples
+Rays(Nef2(2));
+Rays(Nef2(3));
+
+
+// Input: an integer 1 <= n <= 4;
+// Output: the Nef cone of P1xPn blown-up at n+3 general points in the basis H_1, H_2, -E_1,...,-E_{n+3}.
+
+Nef3 := function(n)
+h1 := [1,0];
+h2 := [0,1];
+e := [];
+for i in [1..n+3] do
+e[i] := [0 : j in [1..i+1]] cat [1] cat [0 : j in [i+3..n+5]];
+end for;
+nege := [];
+for i in [1..n+3] do
+nege[i] := [0 : j in [3..i+1]] cat [-1] cat [0 : j in [i+3..n+5]];
+end for;
+v := [];
+for i in [1..n+3] do
+v[i] := h1 cat nege[i];
+end for;
+w := [];
+for i in [1..n+3] do
+w[i] := h2 cat nege[i];
+end for;
+c := [];
+for i in [1..n+3] do 
+cu := [1,n] cat [-1 : j in [1..i-1]] cat [0] cat [-1 : j in[i+1..n+3]];
+c := Append(c,cu);
+end for;
+NE := Cone(v cat w cat e cat c);
+Nef := Dual(NE);
+return Nef;
+end function;
+
+// Examples
+Rays(Nef3(2));
+Rays(Nef3(3));
+
+
+// Mori chamber decomposition of P1 x Pn blown-up at n+1 general points
+
+// Input: an ideal I or an integer 
+// Output: the F-faces indices of I.
+//
+// If I is an integer it returns 
+// all the non-empty subsets of {1,..,I}.
+// (uses Remark 3.1.1.11)
+
+Ffaces := function(I)
+ if Type(I) eq RngIntElt then
+  return Subsets({1..I}) diff {{}};
+ end if;
+ B := Basis(I);
+ R := Parent(I.1);
+ n := Rank(R);
+ faces := {};
+ for S in Subsets({1..n}) diff {{}} do
+  BS := [Evaluate(g,[(i in S) select R.i else 0 : i in [1..n]]) : g in B];
+  if &*[R.i : i in S] notin Radical(Ideal(BS)) then
+   Include(~faces,S);
+  end if;
+ end for;
+ return faces;
+end function;
+
+
+// Input: grading matrix
+// Output: effective cone
+
+Eff := function(Q)
+ n := Ncols(Q);
+ K := ToricLattice(Nrows(Q));
+ return Cone([K!Eltseq(r) : r in Rows(Transpose(Q))]);
+end function;
+
+
+// Input: grading matrix
+// Output: moving cone
+
+Mov := function(Q)
+ n := Ncols(Q);
+ K := ToricLattice(Nrows(Q));
+ L := [K!Eltseq(r) : r in Rows(Transpose(Q))];
+ return &meet([Cone([L[j] : j in Remove([1..#L],i)]) : i in [1..#L]]);
+end function;
+
+
+// Input: (F-faces,grading matrix)
+// Output: orbit cones
+
+OrbitCones := function(F,Q)
+ n := Ncols(Q);
+ K := ToricLattice(Nrows(Q));
+ w := [K!Eltseq(r) : r in Rows(Transpose(Q))];
+ if #F eq 0 then F := Subsets({1..n}) diff {{}}; end if;
+ return {Cone([w[i] : i in S]) : S in F};
+end function;
+
+// Input: (orbit cones, a class)
+// Output: GIT chamber
+
+GitChamber := function(orb,w)
+ K := Ambient(Random(orb));
+ w := K!Eltseq(w);
+ return &meet{C : C in orb | w in C};
+end function;
+
+// Input: (orbit cones, a class)
+// Output: bunch of cones
+
+BunchCones := function(orb,w)
+ return {C : C in orb | w in C};
+end function;
+
+
+// Input: (bunch, class, class)
+// Output: boolean
+//
+// It returns true if the two classes
+// have the same stable base locus
+
+SameSbl := function(bun,w1,w2)
+ K := Ambient(Random(bun));
+ w1 := K!Eltseq(w1);
+ w2 := K!Eltseq(w2);
+ return {C : C in bun | w1 in C} eq {C : C in bun | w2 in C};
+end function;
+
+
+// Input: orbit cones
+// Output: GIT fan
+
+GitFan := function(orb)
+ Eff := Cone(&cat[Rays(C) : C in orb]);
+ SH := {SupportingHyperplane(Eff,C) : C in Facets(Eff)};
+ repeat
+  W := Random(orb);
+  K := Ambient(W);
+  w := &+Rays(W);
+  la := &meet{C : C in orb | w in C};
+ until Dimension(la) eq Dimension(K);
+ L := {la};
+ F := {C : C in Facets(la) | SupportingHyperplane(la,C) notin SH};
+ repeat
+  ff := Random(F);
+  la := Random([C : C in L | IsFace(C,ff)]); 
+  H := K!SupportingHyperplane(la,ff);
+  w := &+Rays(ff);
+  if Dimension(Cone([w,w+H]) meet la) eq 0 
+   then e := 1; 
+   else e := -1;
+  end if;
+  n := 1;
+  repeat
+   u := w + e/10^n*H;
+   n := n+1;
+  until u in Eff;
+  repeat
+   lb := &meet{C : C in orb | u in C};
+   u := w + e/10^n*H;
+   n := n + 1;
+  until Dimension(lb) eq Dimension(K) and lb meet la eq ff;
+  L := L join {lb};
+  Fb := {C : C in Facets(lb) | SupportingHyperplane(lb,C) notin SH};
+  F := (F join Fb) diff (F meet Fb);
+ until IsEmpty(F);
+ return L;
+end function;
+
+// Input: (grading matrix, orbit cones, git fan)
+// Output: list of triples 
+// (git chamber, git chamber, git chamber)
+//
+// In each triple the first is the ample
+// chamber and the remaining two are two
+// git chambers which lie in the same sbl
+
+FindTriples := function(Q,orb,gfan)
+ K := Ambient(Random(gfan));
+ mov := Cone([K!w : w in RGenerators(Mov(Q))]);
+ triples := [];
+ L := Setseq(gfan);
+ M := [C : C in L | &and[w in mov : w in Rays(C)]];
+ for C in M do
+  bun := BunchCones(orb,&+Rays(C));
+   ll := [[C,L[i],L[j]] : i,j in [1..#L] | 
+              i lt j and L[i] ne C and L[j] ne C 
+              and SameSbl(bun,&+Rays(L[i]),&+Rays(L[j]))];
+  if #ll ne 0 then 
+   Append(~triples,ll); 
+  end if;
+ end for;
+ return triples;
+end function;
+
+----------------------------------------------------------------------------------
+
+// Input: an integer n >= 1;
+// Output: the Mori chamber decomposition of P1xPn blown-up at n+1 general points in the basis H_1, H_2, E_1,...,E_{n+1}.
+
+MCD := function(n)
+FF := Rationals();
+A<[T]> := AffineSpace(FF,3*n+3);
+v1 := [0 : i in [1..n+1]] cat [1 : i in [1..n+1]] cat [0 : i in [1..n+1]];
+v2 := [1 : i in [1..n+1]] cat [0 : i in [1..n+1]] cat [0 : i in [1..n+1]];
+w := [];
+for j in [1..n+1] do
+w[j] := [0 : i in [1..j-1]] cat [-1 : i in [j..j]] cat [0 : i in [j+1..n+1]];
+end for;
+z := [];
+for j in [1..n+1] do
+z[j] := [-1 : i in [1..j-1]] cat [0 : i in [j..j]] cat [-1 : i in [j+1..n+1]];
+end for;
+u := [];
+for j in [1..n+1] do
+u[j] := [0 : i in [1..j-1]] cat [1 : i in [j..j]] cat [0 : i in [j+1..n+1]];
+end for;
+r := [];
+for j in [1..n+1] do
+r[j] := w[j] cat z[j] cat u[j];
+end for;
+Q := VerticalJoin(Matrix(2,3*n+3,[v1,v2]),Matrix(r));
+pts := [[1,0],[0,1],[1,1]] cat [[Random(FF,10),Random(FF,10)] : i in [4..n+1]];
+leq := [];
+for i in [1..n-1] do 
+leq[i] := ((pts[i+2])[2]*(pts[i+1])[1]-(pts[i+1])[2]*(pts[i+2])[1])*T[i]*T[2*n+2+i]+((pts[i])[2]*(pts[i+2])[1]-(pts[i+2])[2]*(pts[i])[1])*T[i+1]*T[2*n+3+i]+((pts[i+1])[2]*(pts[i])[1]-(pts[i])[2]*(pts[i+1])[1])*T[i+2]*T[2*n+4+i];
+end for;
+I := Ideal(leq);
+F := Ffaces(I);
+orb := OrbitCones(F,Q); 
+gfan := GitFan(orb); 
+return gfan;
+end function;
+
+// Examples
+time mc2 := MCD(2);
+time mc3 := MCD(3);
+
+
+------------------------------------------------------------------
+Finite field
+
+// Input: an integer n >= 1;
+// Output: the Mori chamber decomposition of P1xPn blown-up at n+1 general points in the basis H_1, H_2, E_1,...,E_{n+1}.
+
+MCD := function(n)
+FF := GF(101);
+A<[T]> := AffineSpace(FF,3*n+3);
+v1 := [0 : i in [1..n+1]] cat [1 : i in [1..n+1]] cat [0 : i in [1..n+1]];
+v2 := [1 : i in [1..n+1]] cat [0 : i in [1..n+1]] cat [0 : i in [1..n+1]];
+w := [];
+for j in [1..n+1] do
+w[j] := [0 : i in [1..j-1]] cat [-1 : i in [j..j]] cat [0 : i in [j+1..n+1]];
+end for;
+z := [];
+for j in [1..n+1] do
+z[j] := [-1 : i in [1..j-1]] cat [0 : i in [j..j]] cat [-1 : i in [j+1..n+1]];
+end for;
+u := [];
+for j in [1..n+1] do
+u[j] := [0 : i in [1..j-1]] cat [1 : i in [j..j]] cat [0 : i in [j+1..n+1]];
+end for;
+r := [];
+for j in [1..n+1] do
+r[j] := w[j] cat z[j] cat u[j];
+end for;
+Q := VerticalJoin(Matrix(2,3*n+3,[v1,v2]),Matrix(r));
+pts := [[1,0],[0,1],[1,1]] cat [[Random(FF),Random(FF)] : i in [4..n+1]];
+leq := [];
+for i in [1..n-1] do 
+leq[i] := ((pts[i+2])[2]*(pts[i+1])[1]-(pts[i+1])[2]*(pts[i+2])[1])*T[i]*T[2*n+2+i]+((pts[i])[2]*(pts[i+2])[1]-(pts[i+2])[2]*(pts[i])[1])*T[i+1]*T[2*n+3+i]+((pts[i+1])[2]*(pts[i])[1]-(pts[i])[2]*(pts[i+1])[1])*T[i+2]*T[2*n+4+i];
+end for;
+I := Ideal(leq);
+F := Ffaces(I);
+orb := OrbitCones(F,Q); 
+gfan := GitFan(orb); 
+return gfan;
+end function;
+
+// Examples
+time mc2 := MCD(2);
+time mc3 := MCD(3);
